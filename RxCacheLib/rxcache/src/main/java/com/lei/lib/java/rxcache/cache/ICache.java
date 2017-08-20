@@ -1,0 +1,28 @@
+package com.lei.lib.java.rxcache.cache;
+
+import io.reactivex.Observable;
+
+/**
+ * 内存缓存和磁盘缓存具备的功能列表：
+ * <p>
+ * put：将数据保存到本地（内存或磁盘）
+ * get：从本地取回数据，update表示强制返回null，这在网络请求更新数据时可以发挥作用
+ * contains：判断对应键值的数据是否存在
+ * remove：移除对应键值的数据
+ * clear：清除所有缓存
+ *
+ * @author lei
+ * @since 2017年8月20日
+ */
+
+public interface ICache {
+    Observable<Boolean> put(String key, byte[] data);
+
+    Observable<byte[]> get(String key, boolean update);
+
+    Observable<Boolean> contains(String key);
+
+    Observable<Boolean> remove(String key);
+
+    Observable<Boolean> clear();
+}
