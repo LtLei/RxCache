@@ -5,6 +5,7 @@ import android.app.Application;
 import com.lei.lib.java.rxcache.cache.CacheManager;
 import com.lei.lib.java.rxcache.converter.IConverter;
 import com.lei.lib.java.rxcache.mode.CacheMode;
+import com.lei.lib.java.rxcache.util.LogUtil;
 import com.lei.lib.java.rxcache.util.Utilities;
 
 import java.lang.reflect.Type;
@@ -12,7 +13,10 @@ import java.lang.reflect.Type;
 import io.reactivex.Observable;
 
 /**
- * Created by lei on 2017/8/20.
+ * 使用此类进行缓存的增删等操作
+ *
+ * @author lei
+ * @since 2017年8月21日
  */
 
 public class RxCache {
@@ -49,6 +53,11 @@ public class RxCache {
         public Builder() {
             assertInit();
             builder = new CacheManager.Builder(mContext);
+        }
+
+        public Builder setDebug(boolean debug) {
+            LogUtil.setDebug(debug);
+            return this;
         }
 
         public Builder setMemoryCacheSizeByMB(int memoryCacheSizeByMB) {
@@ -90,29 +99,61 @@ public class RxCache {
     }
 
     //sets
+
+    /**
+     * 设置缓存的模式
+     * 提供四种模式：无缓存，仅内存，仅磁盘，和双缓存
+     *
+     * @param cacheMode
+     * @return
+     */
     public RxCache setCacheMode(CacheMode cacheMode) {
         mCacheManager = getCacheManagerBuilder().setCacheMode(cacheMode).build();
         return this;
     }
 
+    /**
+     * 可以设置磁盘缓存的文件夹名称
+     *
+     * @param diskDirName
+     * @return
+     */
     public RxCache setDiskDirName(String diskDirName) {
         Utilities.checkNullOrEmpty(diskDirName, "diskDirName is null or empty");
         mCacheManager = getCacheManagerBuilder().setDiskDirName(diskDirName).build();
         return this;
     }
 
+    /**
+     * 以MB为单位，设置磁盘缓存的大小，一般100M以内就可以
+     *
+     * @param diskCacheSizeByMB
+     * @return
+     */
     public RxCache setDiskCacheSizeByMB(int diskCacheSizeByMB) {
         if (diskCacheSizeByMB < 0) throw new IllegalArgumentException("diskCacheSize < 0.");
         mCacheManager = getCacheManagerBuilder().setDiskCacheSizeByMB(diskCacheSizeByMB).build();
         return this;
     }
 
+    /**
+     * 以MB为单位，设置内存缓存的大小，默认为可用内存大小的1/8
+     *
+     * @param memoryCacheSizeByMB
+     * @return
+     */
     public RxCache setMemoryCacheSizeByMB(int memoryCacheSizeByMB) {
         if (memoryCacheSizeByMB < 0) throw new IllegalArgumentException("memoryCacheSize < 0.");
         mCacheManager = getCacheManagerBuilder().setMemoryCacheSizeByMB(memoryCacheSizeByMB).build();
         return this;
     }
 
+    /**
+     * 设置转换器，默认会使用Gson进行转换，也可以使用序列化以及自定义的转换，只需实现IConverter这个接口
+     *
+     * @param converter
+     * @return
+     */
     public RxCache setConverter(IConverter converter) {
         mCacheManager = getCacheManagerBuilder().setConverter(Utilities.checkNotNull(converter, "converter is null.")).build();
         return this;
@@ -129,14 +170,44 @@ public class RxCache {
     }
 
     //method for use
+
+    /**
+     * 写入缓存
+     *
+     * @param key
+     * @param data
+     * @param cacheTime
+     * @param <T>
+     * @return
+     */
     public <T> Observable<Boolean> put(String key, T data, long cacheTime) {
         return getCacheManager().saveLocal(data, key, cacheTime);
     }
 
+    /**
+     * 读取缓存
+     * 若使用Gson转换，需要使用此类， 传递数据的class或者type
+     *
+     * @param key
+     * @param update
+     * @param clazz
+     * @param <T>
+     * @return
+     */
     public <T> Observable<T> get(String key, boolean update, Class<T> clazz) {
         return getCacheManager().get(key, update, clazz);
     }
 
+    /**
+     * 读取缓存
+     * 若使用Gson转换，需要使用此类， 传递数据的class或者type
+     *
+     * @param key
+     * @param update
+     * @param type
+     * @param <T>
+     * @return
+     */
     public <T> Observable<T> get(String key, boolean update, Type type) {
         return getCacheManager().get(key, update, type);
     }
@@ -153,10 +224,21 @@ public class RxCache {
         return get(key, update, null);
     }
 
+    /**
+     * 根据键值，删除缓存的数据
+     *
+     * @param key
+     * @return
+     */
     public Observable<Boolean> remove(String key) {
         return getCacheManager().remove(key);
     }
 
+    /**
+     * 清空缓存
+     *
+     * @return
+     */
     public Observable<Boolean> clear() {
         return getCacheManager().clear();
     }

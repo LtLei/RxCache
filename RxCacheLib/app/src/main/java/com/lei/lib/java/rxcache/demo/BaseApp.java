@@ -19,6 +19,7 @@ public class BaseApp extends Application {
         RxCache.init(this);
 
         new RxCache.Builder()
+                .setDebug(true)
 //                .setConverter(new SerializableConverter())
                 .setConverter(new GsonConverter())
                 .setCacheMode(CacheMode.ONLY_DISK)
