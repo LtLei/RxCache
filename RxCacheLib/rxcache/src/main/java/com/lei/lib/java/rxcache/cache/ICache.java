@@ -1,7 +1,5 @@
 package com.lei.lib.java.rxcache.cache;
 
-import io.reactivex.Observable;
-
 /**
  * 内存缓存和磁盘缓存具备的功能列表：
  * <p>
@@ -16,13 +14,13 @@ import io.reactivex.Observable;
  */
 
 public interface ICache {
-    Observable<Boolean> put(String key, byte[] data);
+    boolean put(String key, byte[] data);
 
-    Observable<byte[]> get(String key, boolean update);
+    byte[] get(String key, boolean update);
 
-    Observable<Boolean> contains(String key);
+    boolean contains(String key);
 
-    Observable<Boolean> remove(String key);
+    boolean remove(String key);
 
-    Observable<Boolean> clear();
+    boolean clear();
 }

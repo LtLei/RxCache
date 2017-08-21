@@ -6,14 +6,13 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 
 import com.jakewharton.disklrucache.DiskLruCache;
+import com.lei.lib.java.rxcache.util.LogUtil;
 import com.lei.lib.java.rxcache.util.Utilities;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import io.reactivex.Observable;
 
 /**
  * 磁盘缓存实现类
@@ -30,7 +29,7 @@ public class DiskCache implements ICache {
         try {
             lruCache = DiskLruCache.open(getDiskCacheFile(context, dirName), getAppVersion(context), 1, cacheSizeByMb * 1024 * 1024);
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
     }
 
@@ -75,21 +74,21 @@ public class DiskCache implements ICache {
             PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return info.versionCode;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
         return 1;
     }
 
     @Override
-    public Observable<Boolean> put(String key, byte[] data) {
+    public boolean put(String key, byte[] data) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
 
         key = Utilities.Md5(key);
-        if (lruCache == null) return Observable.just(false);
+        if (lruCache == null) return false;
         try {
             DiskLruCache.Editor edit = lruCache.edit(key);
             if (edit == null) {
-                return Observable.just(false);
+                return false;
             }
             OutputStream sink = edit.newOutputStream(0);
             if (sink != null) {
@@ -97,17 +96,18 @@ public class DiskCache implements ICache {
                 sink.flush();
                 Utilities.closeQuietly(sink);
                 edit.commit();
-                return Observable.just(true);
+                LogUtil.i("DiskCache save success!");
+                return true;
             }
             edit.abort();
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
-        return Observable.just(false);
+        return false;
     }
 
     @Override
-    public Observable<byte[]> get(String key, boolean update) {
+    public byte[] get(String key, boolean update) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
 
         key = Utilities.Md5(key);
@@ -129,45 +129,46 @@ public class DiskCache implements ICache {
                 value = Utilities.input2byte(source);
                 Utilities.closeQuietly(source);
                 edit.commit();
-                return Observable.just(value);
+                LogUtil.i("DiskCache get success!");
+                return value;
             }
             edit.abort();
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
         return null;
     }
 
     @Override
-    public Observable<Boolean> contains(String key) {
+    public boolean contains(String key) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
-        return Observable.just(get(key, false) != null);
+        return get(key, false) != null;
     }
 
     @Override
-    public Observable<Boolean> remove(String key) {
+    public boolean remove(String key) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
         key = Utilities.Md5(key);
-        if (lruCache == null) return Observable.just(false);
+        if (lruCache == null) return false;
         try {
-            return Observable.just(lruCache.remove(key));
+            return lruCache.remove(key);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
-        return Observable.just(false);
+        return false;
     }
 
     @Override
-    public Observable<Boolean> clear() {
+    public boolean clear() {
         if (lruCache == null) {
-            return Observable.just(false);
+            return false;
         }
         try {
             lruCache.delete();
-            return Observable.just(true);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
-        return Observable.just(false);
+        return false;
     }
 }

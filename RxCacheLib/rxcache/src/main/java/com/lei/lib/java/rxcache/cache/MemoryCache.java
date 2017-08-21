@@ -2,9 +2,8 @@ package com.lei.lib.java.rxcache.cache;
 
 import android.util.LruCache;
 
+import com.lei.lib.java.rxcache.util.LogUtil;
 import com.lei.lib.java.rxcache.util.Utilities;
-
-import io.reactivex.Observable;
 
 /**
  * 内存缓存实现类
@@ -22,22 +21,23 @@ public class MemoryCache implements ICache {
     }
 
     @Override
-    public Observable<Boolean> put(String key, byte[] data) {
+    public boolean put(String key, byte[] data) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
 
         key = Utilities.Md5(key);
-        if (lruCache == null) return Observable.just(false);
+        if (lruCache == null) return false;
         try {
             lruCache.put(key, data);
-            return Observable.just(true);
+            LogUtil.i("MemoryCache save success!");
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
-        return Observable.just(false);
+        return false;
     }
 
     @Override
-    public Observable<byte[]> get(String key, boolean update) {
+    public byte[] get(String key, boolean update) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
 
         key = Utilities.Md5(key);
@@ -50,43 +50,44 @@ public class MemoryCache implements ICache {
             return null;
         }
         try {
-            return Observable.just(lruCache.get(key));
+            LogUtil.i("MemoryCache get success!");
+            return lruCache.get(key);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
         return null;
     }
 
     @Override
-    public Observable<Boolean> contains(String key) {
+    public boolean contains(String key) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
         key = Utilities.Md5(key);
-        return Observable.just(lruCache.get(key) != null);
+        return lruCache.get(key) != null;
     }
 
     @Override
-    public Observable<Boolean> remove(String key) {
+    public boolean remove(String key) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
         key = Utilities.Md5(key);
 
-        if (lruCache == null) return Observable.just(false);
+        if (lruCache == null) return false;
         try {
-            return Observable.just(lruCache.remove(key) != null);
+            return lruCache.remove(key) != null;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
-        return Observable.just(false);
+        return false;
     }
 
     @Override
-    public Observable<Boolean> clear() {
-        if (lruCache == null) return Observable.just(false);
+    public boolean clear() {
+        if (lruCache == null) return false;
         try {
             lruCache.evictAll();
-            return Observable.just(true);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.t(e);
         }
-        return Observable.just(false);
+        return false;
     }
 }
