@@ -195,7 +195,7 @@ public class CacheManager {
 
         if (update) {
             remove(key);
-            return (Observable<T>) handleNull();
+            handleNull();
         }
 
         RealEntity<T> result = null;
@@ -213,19 +213,16 @@ public class CacheManager {
         }
 
         if (result == null) {
-            return (Observable<T>) handleNull();
+             handleNull();
         } else {
             return getData(key, result);
         }
+
+       throw new NullPointerException("data is null");
     }
     private static enum Irrelevant { INSTANCE; }
-    private Observable<Object> handleNull(){
-        return Observable.create(new ObservableOnSubscribe<Object>() {
-            @Override
-            public void subscribe(ObservableEmitter<Object> e) throws Exception {
-                e.onNext(Irrelevant.INSTANCE);
-            }
-        });
+    private void handleNull(){
+        throw new NullPointerException("data is null.");
     }
 
     private <T> Observable<T> getData(String key, RealEntity<T> result) {

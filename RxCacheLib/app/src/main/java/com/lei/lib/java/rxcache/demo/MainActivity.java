@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         });*/
         RxCache.getInstance()
                 .<List<DemoBean>>get("testBeans", false, type1)
-//                .compose(RxUtil.<List<DemoBean>>io_main())
+                .compose(RxUtil.<List<DemoBean>>io_main())
                 .subscribe(new Observer<List<DemoBean>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
