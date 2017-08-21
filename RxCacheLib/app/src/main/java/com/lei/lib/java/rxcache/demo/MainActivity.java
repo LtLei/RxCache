@@ -13,8 +13,18 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -137,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         RxCache.getInstance()
-                .put("testBeans", beanList, 100 * 1000)
+                .put("testBeans", beanList, 10 * 1000)
                 .compose(RxUtil.<Boolean>io_main())
                 .subscribe(new Consumer<Boolean>() {
                     @Override
@@ -145,6 +155,11 @@ public class MainActivity extends AppCompatActivity {
                         LogUtil.e("缓存Beans数据成功！");
                     }
                 });
+        try {
+            Thread.sleep(5*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         Type type1 = new TypeToken<List<DemoBean>>() {
         }.getType();
@@ -157,6 +172,55 @@ public class MainActivity extends AppCompatActivity {
                         for (DemoBean d:demoBeans) {
                             LogUtil.e("取到的Beans缓存为："+d.toString());
                         }
+                    }
+                });
+        try {
+            Thread.sleep(5*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        /*Observable.fromCallable(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                return null;
+            }
+        })
+                .compose(RxUtil.<Void>io_main())
+                .subscribe(new Consumer<Void>() {
+            @Override
+            public void accept(Void aVoid) throws Exception {
+                LogUtil.e("收到");
+
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                LogUtil.e(throwable.getLocalizedMessage());
+            }
+        });*/
+        RxCache.getInstance()
+                .<List<DemoBean>>get("testBeans", false, type1)
+//                .compose(RxUtil.<List<DemoBean>>io_main())
+                .subscribe(new Observer<List<DemoBean>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<DemoBean> value) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
     }

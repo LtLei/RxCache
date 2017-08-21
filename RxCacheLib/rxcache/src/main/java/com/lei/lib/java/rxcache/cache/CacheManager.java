@@ -9,8 +9,11 @@ import com.lei.lib.java.rxcache.mode.CacheMode;
 import com.lei.lib.java.rxcache.util.Utilities;
 
 import java.lang.reflect.Type;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 
 /**
  * 管理缓存
@@ -192,7 +195,7 @@ public class CacheManager {
 
         if (update) {
             remove(key);
-            return null;
+            return (Observable<T>) handleNull();
         }
 
         RealEntity<T> result = null;
@@ -210,10 +213,19 @@ public class CacheManager {
         }
 
         if (result == null) {
-            return null;
+            return (Observable<T>) handleNull();
         } else {
             return getData(key, result);
         }
+    }
+    private static enum Irrelevant { INSTANCE; }
+    private Observable<Object> handleNull(){
+        return Observable.create(new ObservableOnSubscribe<Object>() {
+            @Override
+            public void subscribe(ObservableEmitter<Object> e) throws Exception {
+                e.onNext(Irrelevant.INSTANCE);
+            }
+        });
     }
 
     private <T> Observable<T> getData(String key, RealEntity<T> result) {
