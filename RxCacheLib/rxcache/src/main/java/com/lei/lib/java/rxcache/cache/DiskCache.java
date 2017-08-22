@@ -33,6 +33,11 @@ public class DiskCache implements ICache {
         }
     }
 
+    public boolean isClosed() {
+        if (lruCache == null) return true;
+        return lruCache.isClosed();
+    }
+
     /**
      * 获取文件夹地址，如果不存在，则创建
      *

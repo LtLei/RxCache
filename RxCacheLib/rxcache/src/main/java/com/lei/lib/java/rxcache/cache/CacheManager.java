@@ -172,6 +172,10 @@ public class CacheManager {
     }
 
     public DiskCache getDiskCache() {
+        if (mDiskCache == null) return mDiskCache;
+        if (mDiskCache.isClosed()) {
+            mDiskCache = new DiskCache(getContext(), getDiskDirName(), getDiskCacheSizeByMB());
+        }
         return mDiskCache;
     }
 

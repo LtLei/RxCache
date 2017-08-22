@@ -16,7 +16,7 @@ import io.reactivex.functions.Consumer;
 public class BasicActivity extends AppCompatActivity implements View.OnClickListener {
     EditText editText;
     TextView textView;
-    Button button1, button2, button3;
+    Button button1, button2, button3,button4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +27,12 @@ public class BasicActivity extends AppCompatActivity implements View.OnClickList
         button1 = findViewById(R.id.button1);
         button2 = findViewById(R.id.button2);
         button3 = findViewById(R.id.button3);
+        button4 = findViewById(R.id.button4);
 
         button1.setOnClickListener(this);
         button2.setOnClickListener(this);
         button3.setOnClickListener(this);
+        button4.setOnClickListener(this);
     }
 
     @Override
@@ -84,6 +86,17 @@ public class BasicActivity extends AppCompatActivity implements View.OnClickList
                             @Override
                             public void accept(Throwable throwable) throws Exception {
                                 textView.setText(throwable.getLocalizedMessage());
+                            }
+                        });
+                break;
+            case R.id.button4:
+                RxCache.getInstance()
+                        .clear()
+                        .compose(RxUtil.<Boolean>io_main())
+                        .subscribe(new Consumer<Boolean>() {
+                            @Override
+                            public void accept(Boolean aBoolean) throws Exception {
+                                if(aBoolean)textView.setText("清空数据成功啦！");
                             }
                         });
                 break;
