@@ -23,7 +23,7 @@ public class SerializeUtil {
             byte[] bytes = baos.toByteArray();
             return bytes;
         } catch (Exception e) {
-
+            LogUtil.t(e);
         }
         return null;
     }
@@ -42,7 +42,7 @@ public class SerializeUtil {
             ObjectInputStream ois = new ObjectInputStream(bais);
             return ois.readObject();
         } catch (Exception e) {
-
+            LogUtil.t(e);
         }
         return null;
     }

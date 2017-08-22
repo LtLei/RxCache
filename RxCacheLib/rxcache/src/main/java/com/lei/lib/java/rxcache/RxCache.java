@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.lei.lib.java.rxcache.cache.CacheManager;
 import com.lei.lib.java.rxcache.converter.IConverter;
+import com.lei.lib.java.rxcache.entity.CacheResponse;
 import com.lei.lib.java.rxcache.mode.CacheMode;
 import com.lei.lib.java.rxcache.util.LogUtil;
 import com.lei.lib.java.rxcache.util.Utilities;
@@ -159,6 +160,51 @@ public class RxCache {
         return this;
     }
 
+    /**
+     * 获取转换器
+     *
+     * @return
+     */
+    public IConverter getConverter() {
+        return getCacheManager().getConverter();
+    }
+
+    /**
+     * 获取缓存模式
+     *
+     * @return
+     */
+    public CacheMode getCacheMode() {
+        return getCacheManager().getCacheMode();
+    }
+
+    /**
+     * 获取磁盘缓存的大小
+     *
+     * @return
+     */
+    public int getDiskCacheSizeByMB() {
+        return getCacheManager().getDiskCacheSizeByMB();
+    }
+
+    /**
+     * 获取内存缓存的大小
+     *
+     * @return
+     */
+    public int getMemoryCacheSizeByMB() {
+        return getCacheManager().getMemoryCacheSizeByMB();
+    }
+
+    /**
+     * 获取磁盘缓存的文件夹名称
+     *
+     * @return
+     */
+    public String getDiskDirName() {
+        return getCacheManager().getDiskDirName();
+    }
+
     private CacheManager.Builder getCacheManagerBuilder() {
         if (mCacheManagerBuilder == null) mCacheManagerBuilder = new CacheManager.Builder(mContext);
         return mCacheManagerBuilder;
@@ -194,7 +240,7 @@ public class RxCache {
      * @param <T>
      * @return
      */
-    public <T> Observable<T> get(String key, boolean update, Class<T> clazz) {
+    public <T> Observable<CacheResponse<T>> get(String key, boolean update, Class<T> clazz) {
         return getCacheManager().get(key, update, clazz);
     }
 
@@ -208,7 +254,7 @@ public class RxCache {
      * @param <T>
      * @return
      */
-    public <T> Observable<T> get(String key, boolean update, Type type) {
+    public <T> Observable<CacheResponse<T>> get(String key, boolean update, Type type) {
         return getCacheManager().get(key, update, type);
     }
 
@@ -220,7 +266,7 @@ public class RxCache {
      * @param <T>
      * @return
      */
-    public <T> Observable<T> get(String key, boolean update) {
+    public <T> Observable<CacheResponse<T>> get(String key, boolean update) {
         return get(key, update, null);
     }
 

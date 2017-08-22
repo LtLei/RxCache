@@ -17,6 +17,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".BasicActivity"
+            android:label="基本类型数据" />
+        <activity
+            android:name=".ArrayActivity"
+            android:label="数组类型数据" />
+        <activity
+            android:name=".AsListActivity"
+            android:label="List类型数据" />
+        <activity
+            android:name=".BeanActivity"
+            android:label="Bean类型数据" />
+        <activity
+            android:name=".BeanListActivity"
+            android:label="BeanList类型数据" />
+        <activity
+            android:name=".ExpireActivity"
+            android:label="测试过期" />
+        <activity
+            android:name=".ModeActivity"
+            android:label="切换缓存模式" />
+        <activity
+            android:name=".ConverterActivity"
+            android:label="切换转换模式" />
     </application>
 
 </manifest>

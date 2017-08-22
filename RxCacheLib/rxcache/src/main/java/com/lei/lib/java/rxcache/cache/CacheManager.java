@@ -4,12 +4,13 @@ import android.content.Context;
 
 import com.lei.lib.java.rxcache.converter.GsonConverter;
 import com.lei.lib.java.rxcache.converter.IConverter;
+import com.lei.lib.java.rxcache.entity.CacheResponse;
 import com.lei.lib.java.rxcache.entity.RealEntity;
 import com.lei.lib.java.rxcache.mode.CacheMode;
+import com.lei.lib.java.rxcache.util.LogUtil;
 import com.lei.lib.java.rxcache.util.Utilities;
 
 import java.lang.reflect.Type;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -149,15 +150,21 @@ public class CacheManager {
     }
 
     public int getDiskCacheSizeByMB() {
-        return diskCacheSizeByMB;
+        if (cacheMode == CacheMode.BOTH || cacheMode == CacheMode.ONLY_DISK)
+            return diskCacheSizeByMB;
+        return 0;
     }
 
     public int getMemoryCacheSizeByMB() {
-        return memoryCacheSizeByMB;
+        if (cacheMode == CacheMode.BOTH || cacheMode == CacheMode.ONLY_MEMORY)
+            return memoryCacheSizeByMB;
+        return 0;
     }
 
     public String getDiskDirName() {
-        return diskDirName;
+        if (cacheMode == CacheMode.BOTH || cacheMode == CacheMode.ONLY_DISK)
+            return diskDirName;
+        return "";
     }
 
     public MemoryCache getMemoryCache() {
@@ -190,62 +197,64 @@ public class CacheManager {
         return Observable.just(result | (getCacheMode() == CacheMode.NONE ? true : false));
     }
 
-    public <T> Observable<T> get(String key, boolean update, final Type type) {
+    public <T> Observable<CacheResponse<T>> get(final String key, final boolean update, final Type type) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
+        Observable<CacheResponse<T>> memory = Observable.create(new ObservableOnSubscribe<CacheResponse<T>>() {
+            @Override
+            public void subscribe(ObservableEmitter<CacheResponse<T>> e) throws Exception {
+                CacheResponse<T> response = new CacheResponse<>();
+                if (update) {
+                    remove(key);
+                    e.onComplete();
+                }
 
-        if (update) {
-            remove(key);
-            handleNull();
-        }
-
-        RealEntity<T> result = null;
-        //先从内存缓存中获取数据
-        result = getFromCache(getMemoryCache(), key, update, type);
-        if (result == null) {
-            //内存缓存中不存在，从磁盘缓存中获取数据
-            result = getFromCache(getDiskCache(), key, update, type);
-            if (result != null) {
-                //磁盘缓存中成功获取数据，将数据同步到内存缓存中
-                save2Memory(key, result);
-
-                return getData(key, result);
+                T data = getDataFromCache(getMemoryCache(), key, update, type);
+                if (data != null) {
+                    response.setData(data);
+                    LogUtil.i("data from memory.");
+                    e.onNext(response);
+                } else {
+                    e.onComplete();
+                }
             }
-        }
+        });
 
-        if (result == null) {
-             handleNull();
-        } else {
-            return getData(key, result);
-        }
+        Observable<CacheResponse<T>> disk = Observable.create(new ObservableOnSubscribe<CacheResponse<T>>() {
+            @Override
+            public void subscribe(ObservableEmitter<CacheResponse<T>> e) throws Exception {
+                CacheResponse<T> response = new CacheResponse<>();
 
-       throw new NullPointerException("data is null");
-    }
-    private static enum Irrelevant { INSTANCE; }
-    private void handleNull(){
-        throw new NullPointerException("data is null.");
-    }
+                if (update) {
+                    remove(key);
+                    e.onNext(response);
+                    e.onComplete();
+                }
 
-    private <T> Observable<T> getData(String key, RealEntity<T> result) {
-        if (result.getCacheTime() == -1) {
-            //永久缓存
-            return Observable.just(result.getDatas());
-        }
-        if (result.getUpdateDate() + result.getCacheTime() < System.currentTimeMillis()) {
-            remove(key);
-            return null;
-        }
+                T data = getDataFromCache(getDiskCache(), key, update, type);
+                if (data != null) {
+                    response.setData(data);
+                    LogUtil.i("data from disk");
+                    e.onNext(response);
+                } else {
+                    LogUtil.i("data is null.");
+                    e.onNext(response);
+                    e.onComplete();
+                }
+            }
+        });
 
-        return Observable.just(result.getDatas());
+        return Observable.concat(memory, disk);
     }
 
     private <T> void save2Memory(String key, RealEntity<T> realEntity) {
         if (getMemoryCache() != null) {
             byte[] cacheData = getConverter().encode(realEntity);
-            getMemoryCache().put(key, cacheData);
+            boolean save = getMemoryCache().put(key, cacheData);
+            if (save) LogUtil.i("copy data from disk to memory");
         }
     }
 
-    private <T> RealEntity<T> getFromCache(ICache cache, String key, boolean update, Type type) {
+    private <T> T getDataFromCache(ICache cache, String key, boolean update, Type type) {
         byte[] cacheData = null;
         RealEntity<T> result = null;
         if (cache != null) {
@@ -255,13 +264,31 @@ public class CacheManager {
             }
         }
 
-        return result;
+        T data = null;
+        if (result != null) {
+            //非永久缓存，并且缓存尚未过期
+            if (result.getCacheTime() != -1 && (result.getUpdateDate() + result.getCacheTime() > System.currentTimeMillis())) {
+                data = result.getDatas();
+            }
+        }
+        //判断一下，如果data不为空，且这是从磁盘获取的，将其同步到内存缓存中
+        if (data != null && cache instanceof DiskCache) {
+            save2Memory(key, result);
+        }
+        return data;
     }
 
     public Observable<Boolean> remove(String key) {
         boolean result = false;
-        if (getDiskCache() != null) result |= getDiskCache().remove(key);
-        if (getMemoryCache() != null) result |= getMemoryCache().remove(key);
+        if (getDiskCache() != null) {
+            result |= getDiskCache().remove(key);
+            result |= !getDiskCache().contains(key);
+        }
+        if (getMemoryCache() != null) {
+            result |= getMemoryCache().remove(key);
+            result |= !getMemoryCache().contains(key);
+        }
+
         return Observable.just(result);
     }
 

@@ -22,7 +22,7 @@ public class BaseApp extends Application {
                 .setDebug(true)
 //                .setConverter(new SerializableConverter())
                 .setConverter(new GsonConverter())
-                .setCacheMode(CacheMode.ONLY_DISK)
+                .setCacheMode(CacheMode.BOTH)
                 .setDiskCacheSizeByMB(50)
                 .setDiskDirName("CacheDemo")
                 .setMemoryCacheSizeByMB(50)
