@@ -3,8 +3,11 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/RxCacheLib.iml" filepath="$PROJECT_DIR$/RxCacheLib.iml" />
+      <module fileurl="file://D:\AndroidProduces\AndroidLibs\RxCache\RxCacheLib\RxCacheLib.iml" filepath="D:\AndroidProduces\AndroidLibs\RxCache\RxCacheLib\RxCacheLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:\AndroidProduces\AndroidLibs\RxCache\RxCacheLib\app\app.iml" filepath="D:\AndroidProduces\AndroidLibs\RxCache\RxCacheLib\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/rxcache/rxcache.iml" filepath="$PROJECT_DIR$/rxcache/rxcache.iml" />
+      <module fileurl="file://D:\AndroidProduces\AndroidLibs\RxCache\RxCacheLib\rxcache\rxcache.iml" filepath="D:\AndroidProduces\AndroidLibs\RxCache\RxCacheLib\rxcache\rxcache.iml" />
     </modules>
   </component>
 </project>

@@ -283,6 +283,8 @@ public class CacheManager {
     }
 
     public Observable<Boolean> remove(String key) {
+        if (getCacheMode() == CacheMode.NONE) return Observable.just(true);
+
         boolean result = false;
         if (getDiskCache() != null) {
             result |= getDiskCache().remove(key);
@@ -297,6 +299,8 @@ public class CacheManager {
     }
 
     public Observable<Boolean> clear() {
+        if (getCacheMode() == CacheMode.NONE) return Observable.just(true);
+
         boolean result = false;
         if (getDiskCache() != null) result |= getDiskCache().clear();
         if (getMemoryCache() != null) result |= getMemoryCache().clear();
