@@ -2,7 +2,26 @@
 
 RxCache使用LruCache和DiskLruCache对网络请求数据进行二级缓存，主要适配于接口API返回数据，不用于图片等的缓存。可以设置缓存模式、缓存大小，设置数据过期时间，并提供了根据key删除缓存和清空所有缓存的功能。提供了Gson方式和Serialize方式进行数据存储转换与还原。
 
-# 使用方法：
+# 开始使用：
+
+## 首先在项目的Gradle中添加依赖：
+
+RxCache使用JitPack进行依赖管理，所以需要先在项目的build.gradle中添加以下代码：
+
+```
+allprojects{
+    repositories{
+        ...
+        maven{url 'https://jitpack.io'}
+    }
+}
+```
+
+然后在Module的gradle中添加以下依赖：
+
+```
+compile 'com.github.LtLei:RxCache:1.0.0'
+```
 
 ## 在你的Application中进行初始化：
 
