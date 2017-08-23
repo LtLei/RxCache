@@ -20,7 +20,7 @@ allprojects{
 然后在Module的gradle中添加以下依赖：
 
 ```
-compile 'com.github.LtLei:RxCache:1.0.0'
+compile 'com.github.LtLei:RxCache:v1.0.0'
 ```
 
 ## 在你的Application中进行初始化：
