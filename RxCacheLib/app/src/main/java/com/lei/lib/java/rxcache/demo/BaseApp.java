@@ -18,15 +18,15 @@ public class BaseApp extends Application {
         //初始化
         RxCache.init(this);
 
-        new RxCache.Builder()
-                .setDebug(true)
-//                .setConverter(new SerializableConverter())
-                .setConverter(new GsonConverter())
-                .setCacheMode(CacheMode.BOTH)
-                .setDiskCacheSizeByMB(50)
-                .setDiskDirName("CacheDemo")
-                .setMemoryCacheSizeByMB(50)
-                .build();
+//        new RxCache.Builder()
+//                .setDebug(true)
+////                .setConverter(new SerializableConverter())
+//                .setConverter(new GsonConverter())
+//                .setCacheMode(CacheMode.BOTH)
+//                .setDiskCacheSizeByMB(50)
+//                .setDiskDirName("CacheDemo")
+//                .setMemoryCacheSizeByMB(50)
+//                .build();
 
     }
 }
