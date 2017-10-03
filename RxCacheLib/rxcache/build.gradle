@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin: 'com.github.dcendents.android-maven'
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
@@ -24,7 +24,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.jakewharton:disklrucache:2.0.2'
+    compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'io.reactivex.rxjava2:rxjava:2.0.1'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'

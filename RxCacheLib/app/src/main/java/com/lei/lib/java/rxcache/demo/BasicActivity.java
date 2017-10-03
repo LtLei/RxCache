@@ -41,7 +41,7 @@ public class BasicActivity extends AppCompatActivity implements View.OnClickList
             case R.id.button1:
                 final String text = editText.getText().toString().trim();
                 RxCache.getInstance()
-                        .put("testString", text, 10 * 1000)
+                        .put("testString", text, -1)
                         .compose(RxUtil.<Boolean>io_main())
                         .subscribe(new Consumer<Boolean>() {
                             @Override

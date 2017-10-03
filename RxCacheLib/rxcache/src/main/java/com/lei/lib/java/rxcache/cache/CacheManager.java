@@ -270,8 +270,8 @@ public class CacheManager {
 
         T data = null;
         if (result != null) {
-            //非永久缓存，并且缓存尚未过期
-            if (result.getCacheTime() != -1 && (result.getUpdateDate() + result.getCacheTime() > System.currentTimeMillis())) {
+            //非永久缓存，并且缓存尚未过期，或者是永久缓存
+            if (result.getCacheTime()==-1 ||(result.getCacheTime() != -1 && (result.getUpdateDate() + result.getCacheTime() > System.currentTimeMillis()))) {
                 data = result.getDatas();
             }
         }
