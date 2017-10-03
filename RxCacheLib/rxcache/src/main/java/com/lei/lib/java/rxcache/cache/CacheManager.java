@@ -298,6 +298,23 @@ public class CacheManager {
         return Observable.just(result);
     }
 
+    public Observable<Boolean> remove(String... keys){
+        if (getCacheMode() == CacheMode.NONE) return Observable.just(true);
+        boolean result = false;
+        for (int i = 0; i < keys.length; i++) {
+            if (getDiskCache() != null) {
+                result |= getDiskCache().remove(keys[i]);
+                result |= !getDiskCache().contains(keys[i]);
+            }
+            if (getMemoryCache() != null) {
+                result |= getMemoryCache().remove(keys[i]);
+                result |= !getMemoryCache().contains(keys[i]);
+            }
+        }
+
+        return Observable.just(result);
+    }
+
     public Observable<Boolean> clear() {
         if (getCacheMode() == CacheMode.NONE) return Observable.just(true);
 
