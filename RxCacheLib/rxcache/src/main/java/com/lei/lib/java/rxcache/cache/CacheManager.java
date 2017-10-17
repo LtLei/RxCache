@@ -203,7 +203,37 @@ public class CacheManager {
 
     public <T> Observable<CacheResponse<T>> get(final String key, final boolean update, final Type type) {
         Utilities.checkNullOrEmpty(key, "key is null or empty.");
-        Observable<CacheResponse<T>> memory = Observable.create(new ObservableOnSubscribe<CacheResponse<T>>() {
+        return Observable.create(new ObservableOnSubscribe<CacheResponse<T>>() {
+            @Override
+            public void subscribe(ObservableEmitter<CacheResponse<T>> e) throws Exception {
+                CacheResponse<T> response = new CacheResponse<>();
+                if (update) {
+                    remove(key);
+                    e.onComplete();
+                }
+                T data = getDataFromCache(getMemoryCache(), key, update, type);
+                if (data != null) {
+                    response.setData(data);
+                    LogUtil.i("data from memory.");
+                    e.onNext(response);
+                    e.onComplete();
+                } else {
+                    data = getDataFromCache(getDiskCache(), key, update, type);
+                    if (data != null) {
+                        response.setData(data);
+                        LogUtil.i("data from disk");
+                        e.onNext(response);
+                        e.onComplete();
+                    } else {
+                        LogUtil.i("data is null.");
+                        e.onNext(response);
+                        e.onComplete();
+                    }
+                }
+            }
+        });
+
+        /*Observable<CacheResponse<T>> memory = Observable.create(new ObservableOnSubscribe<CacheResponse<T>>() {
             @Override
             public void subscribe(ObservableEmitter<CacheResponse<T>> e) throws Exception {
                 CacheResponse<T> response = new CacheResponse<>();
@@ -217,7 +247,7 @@ public class CacheManager {
                     response.setData(data);
                     LogUtil.i("data from memory.");
                     e.onNext(response);
-                    e.onComplete();
+//                    e.onComplete();
                 } else {
                     e.onComplete();
                 }
@@ -248,8 +278,7 @@ public class CacheManager {
                 }
             }
         });
-
-        return Observable.concat(memory, disk);
+        return Observable.concat(memory, disk);*/
     }
 
     private <T> void save2Memory(String key, RealEntity<T> realEntity) {
@@ -273,7 +302,7 @@ public class CacheManager {
         T data = null;
         if (result != null) {
             //非永久缓存，并且缓存尚未过期，或者是永久缓存
-            if (result.getCacheTime()==-1 ||(result.getCacheTime() != -1 && (result.getUpdateDate() + result.getCacheTime() > System.currentTimeMillis()))) {
+            if (result.getCacheTime() == -1 || (result.getCacheTime() != -1 && (result.getUpdateDate() + result.getCacheTime() > System.currentTimeMillis()))) {
                 data = result.getDatas();
             }
         }
@@ -300,7 +329,7 @@ public class CacheManager {
         return Observable.just(result);
     }
 
-    public Observable<Boolean> remove(String... keys){
+    public Observable<Boolean> remove(String... keys) {
         if (getCacheMode() == CacheMode.NONE) return Observable.just(true);
         boolean result = false;
         for (int i = 0; i < keys.length; i++) {
