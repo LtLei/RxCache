@@ -279,6 +279,9 @@ public class RxCache {
     public Observable<Boolean> remove(String key) {
         return getCacheManager().remove(key);
     }
+    public Observable<Boolean> remove(String... keys) {
+        return getCacheManager().remove(keys);
+    }
 
     /**
      * 清空缓存
