@@ -9,8 +9,11 @@ import android.widget.TextView;
 
 import com.lei.lib.java.rxcache.RxCache;
 import com.lei.lib.java.rxcache.entity.CacheResponse;
+import com.lei.lib.java.rxcache.util.LogUtil;
 import com.lei.lib.java.rxcache.util.RxUtil;
 
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
 public class BasicActivity extends AppCompatActivity implements View.OnClickListener {
@@ -60,6 +63,18 @@ public class BasicActivity extends AppCompatActivity implements View.OnClickList
                 RxCache.getInstance()
                         .get("testString", false, String.class)
                         .compose(RxUtil.<CacheResponse<String>>io_main())
+                        .doOnSubscribe(new Consumer<Disposable>() {
+                            @Override
+                            public void accept(Disposable disposable) throws Exception {
+                                LogUtil.e("测试 开始");
+                            }
+                        })
+                        .doFinally(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                LogUtil.e("测试 结束");
+                            }
+                        })
                         .subscribe(new Consumer<CacheResponse<String>>() {
                             @Override
                             public void accept(CacheResponse<String> stringCacheResponse) throws Exception {

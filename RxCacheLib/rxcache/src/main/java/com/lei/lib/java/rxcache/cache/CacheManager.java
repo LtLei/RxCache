@@ -217,6 +217,7 @@ public class CacheManager {
                     response.setData(data);
                     LogUtil.i("data from memory.");
                     e.onNext(response);
+                    e.onComplete();
                 } else {
                     e.onComplete();
                 }
@@ -239,6 +240,7 @@ public class CacheManager {
                     response.setData(data);
                     LogUtil.i("data from disk");
                     e.onNext(response);
+                    e.onComplete();
                 } else {
                     LogUtil.i("data is null.");
                     e.onNext(response);
