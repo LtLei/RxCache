@@ -4,6 +4,7 @@ RxCache使用LruCache和DiskLruCache对网络请求数据进行二级缓存，�
 
 # 开始使用：
 ### 更新日志
+RxJava事件优化，必然触发onComplete方法
 修复cacheTime传递-1（表示不会过期）时，数据无法取出的问题
 
 ## 首先在项目的Gradle中添加依赖：
@@ -22,7 +23,7 @@ allprojects{
 然后在Module的gradle中添加以下依赖：
 
 ```
-compile 'com.github.LtLei:RxCache:1.0.1'
+compile 'com.github.LtLei:RxCache:1.0.5'
 ```
 
 ## 在你的Application中进行初始化：
