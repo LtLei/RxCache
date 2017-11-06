@@ -46,7 +46,12 @@ public class DiskCache implements ICache {
      * @return File 文件
      */
     private File getDiskCacheFile(Context context, String dirName) {
-        File cacheDir = packDiskCacheFile(context, dirName);
+        File cacheDir;
+        try {
+            cacheDir = packDiskCacheFile(context, dirName);
+        } catch (NullPointerException e) {
+            cacheDir = new File(context.getCacheDir().getPath() + File.separator + dirName);
+        }
         if (!cacheDir.exists()) {
             cacheDir.mkdirs();
         }
@@ -60,7 +65,7 @@ public class DiskCache implements ICache {
      * @param dirName 文件名
      * @return File 文件
      */
-    private File packDiskCacheFile(Context context, String dirName) {
+    private File packDiskCacheFile(Context context, String dirName) throws NullPointerException {
         String cachePath;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
                 || !Environment.isExternalStorageRemovable()) {
