@@ -18,7 +18,7 @@ public class BaseApp extends Application {
         //初始化
         RxCache.init(this);
 
-//        new RxCache.Builder()
+//        new RxCache.Builder(this)
 //                .setDebug(true)
 ////                .setConverter(new SerializableConverter())
 //                .setConverter(new GsonConverter())
