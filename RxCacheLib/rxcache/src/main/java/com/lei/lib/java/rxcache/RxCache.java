@@ -53,7 +53,7 @@ public class RxCache {
         private CacheManager.Builder builder;
 
         public Builder(Context context) {
-            mContext = context;
+            mContext = Utilities.checkNotNull(context, "context is null.");
             builder = new CacheManager.Builder(mContext);
         }
 
