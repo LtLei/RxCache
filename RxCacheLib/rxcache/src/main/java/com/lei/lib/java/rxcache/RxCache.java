@@ -1,6 +1,7 @@
 package com.lei.lib.java.rxcache;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.lei.lib.java.rxcache.cache.CacheManager;
 import com.lei.lib.java.rxcache.converter.IConverter;
@@ -21,11 +22,11 @@ import io.reactivex.Observable;
  */
 
 public class RxCache {
-    private static Application mContext;
+    private static Context mContext;
     private CacheManager.Builder mCacheManagerBuilder;
     private CacheManager mCacheManager;
 
-    public static void init(Application context) {
+    public static void init(Context context) {
         mContext = Utilities.checkNotNull(context, "context is null.");
     }
 
@@ -51,8 +52,8 @@ public class RxCache {
     public static class Builder {
         private CacheManager.Builder builder;
 
-        public Builder() {
-            assertInit();
+        public Builder(Context context) {
+            mContext = Utilities.checkNotNull(context, "context is null.");
             builder = new CacheManager.Builder(mContext);
         }
 
